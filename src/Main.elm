@@ -130,7 +130,7 @@ routeParser =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "Elm Bootstrap"
+    { title = "Information Visualization Project"
     , body =
         [ div []
             [ menu model
@@ -146,7 +146,7 @@ menu model =
     Navbar.config NavMsg
         |> Navbar.withAnimation
         |> Navbar.container
-        |> Navbar.brand [ href "#" ] [ text "Elm Bootstrap" ]
+        |> Navbar.brand [ href "#" ] [ text "Information Visualization Project" ]
         |> Navbar.items
             [ Navbar.itemLink [ href "#getting-started" ] [ text "Getting started" ]
             , Navbar.itemLink [ href "#modules" ] [ text "Modules" ]
