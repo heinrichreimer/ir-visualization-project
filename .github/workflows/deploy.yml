@@ -21,7 +21,7 @@ jobs:
         node-version: 8.16.x
     - name: "🧰 Install Yarn"
       run: npm install -g yarn
-    - name: "🧰 Install Node dependencies"
+    - name: "🧰 Install dependencies"
       run: yarn install
     - name: "🏗 Build"
       run: yarn build
