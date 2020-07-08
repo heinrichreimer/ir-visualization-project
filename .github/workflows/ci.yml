@@ -15,7 +15,7 @@ jobs:
     - name: "🧰 Install Node"
       uses: actions/setup-node@v1
       with:
-        node-version: 8.16.x
+        node-version: 12.18.2
     - name: "🧰 Install Yarn"
       run: npm install -g yarn
     - name: "🧰 Install dependencies"
