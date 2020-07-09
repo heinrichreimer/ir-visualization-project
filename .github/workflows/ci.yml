@@ -30,7 +30,9 @@ jobs:
       run: echo ::add-path::$(yarn bin)
     - name: "✔️ Check Elm format"
       uses: sparksp/elm-format-action@v1
-    - name: "✔️ Check Elm format"
+    - name: "✔️ Review Elm"
       uses: sparksp/elm-review-action@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: "🏗 Build"
       run: yarn build
