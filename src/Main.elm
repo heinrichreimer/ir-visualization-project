@@ -14,7 +14,7 @@ import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Url exposing (Url)
-import Url.Parser as UrlParser exposing ((</>), Parser, s, top)
+import Url.Parser as UrlParser exposing (Parser, s, top)
 
 
 type alias Flags =
