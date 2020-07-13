@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development --open"
+    "start": "webpack-dev-server --mode development --open",
+    "test": "elm-review"
   },
   "dependencies": {
     "bootstrap": "^4.5.0",

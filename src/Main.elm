@@ -1,39 +1,19 @@
 module Main exposing (main)
 
-import Bootstrap.Button as Button
-import Bootstrap.Card as Card
-import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
-import Bootstrap.ListGroup as Listgroup
 import Bootstrap.Modal as Modal
 import Bootstrap.Navbar as Navbar
-import Browser exposing (UrlRequest)
+import Browser
 import Browser.Navigation as Navigation
-import Html exposing (Html, div, h1, h2, text)
-import Html.Attributes exposing (href)
-import Html.Events exposing (onClick)
+import Components.Navigation exposing (bottomMenu, topMenu)
+import Flags exposing (Flags)
+import Html exposing (Html, div, text)
+import Model exposing (Model, Page(..))
+import Msg exposing (Msg)
+import Pages exposing (pageContent)
 import Url exposing (Url)
 import Url.Parser as UrlParser exposing (Parser, s, top)
-
-
-type alias Flags =
-    {}
-
-
-type alias Model =
-    { navKey : Navigation.Key
-    , page : Page
-    , navState : Navbar.State
-    , modalVisibility : Modal.Visibility
-    }
-
-
-type Page
-    = Home
-    | GettingStarted
-    | Modules
-    | NotFound
 
 
 main : Program Flags Model Msg
@@ -43,8 +23,8 @@ main =
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = ClickedLink
-        , onUrlChange = UrlChange
+        , onUrlRequest = Msg.RequestUrl
+        , onUrlChange = Msg.ChangeUrl
         }
 
 
@@ -52,7 +32,7 @@ init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init _ url key =
     let
         ( navState, navCmd ) =
-            Navbar.initialState NavMsg
+            Navbar.initialState Msg.UpdateNav
 
         ( model, urlCmd ) =
             urlUpdate url { navKey = key, navState = navState, page = Home, modalVisibility = Modal.hidden }
@@ -60,23 +40,15 @@ init _ url key =
     ( model, Cmd.batch [ urlCmd, navCmd ] )
 
 
-type Msg
-    = UrlChange Url
-    | ClickedLink UrlRequest
-    | NavMsg Navbar.State
-    | CloseModal
-    | ShowModal
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Navbar.subscriptions model.navState NavMsg
+    Navbar.subscriptions model.navState Msg.UpdateNav
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ClickedLink req ->
+        Msg.RequestUrl req ->
             case req of
                 Browser.Internal url ->
                     ( model, Navigation.pushUrl model.navKey <| Url.toString url )
@@ -84,20 +56,20 @@ update msg model =
                 Browser.External href ->
                     ( model, Navigation.load href )
 
-        UrlChange url ->
+        Msg.ChangeUrl url ->
             urlUpdate url model
 
-        NavMsg state ->
+        Msg.UpdateNav state ->
             ( { model | navState = state }
             , Cmd.none
             )
 
-        CloseModal ->
+        Msg.CloseModal ->
             ( { model | modalVisibility = Modal.hidden }
             , Cmd.none
             )
 
-        ShowModal ->
+        Msg.ShowModal ->
             ( { model | modalVisibility = Modal.shown }
             , Cmd.none
             )
@@ -107,7 +79,7 @@ urlUpdate : Url -> Model -> ( Model, Cmd Msg )
 urlUpdate url model =
     case decode url of
         Nothing ->
-            ( { model | page = NotFound }, Cmd.none )
+            ( { model | page = Home }, Cmd.none )
 
         Just route ->
             ( { model | page = route }, Cmd.none )
@@ -133,110 +105,23 @@ view model =
     { title = "Information Visualization Project"
     , body =
         [ div []
-            [ menu model
+            [ topMenu Msg.UpdateNav model.navState
             , mainContent model
+            , bottomMenu Msg.UpdateNav model.navState
             , modal model
             ]
         ]
     }
 
 
-menu : Model -> Html Msg
-menu model =
-    Navbar.config NavMsg
-        |> Navbar.withAnimation
-        |> Navbar.container
-        |> Navbar.brand [ href "#" ] [ text "Information Visualization Project" ]
-        |> Navbar.items
-            [ Navbar.itemLink [ href "#getting-started" ] [ text "Getting started" ]
-            , Navbar.itemLink [ href "#modules" ] [ text "Modules" ]
-            ]
-        |> Navbar.view model.navState
-
-
 mainContent : Model -> Html Msg
 mainContent model =
-    Grid.container [] <|
-        case model.page of
-            Home ->
-                pageHome model
-
-            GettingStarted ->
-                pageGettingStarted model
-
-            Modules ->
-                pageModules model
-
-            NotFound ->
-                pageNotFound
-
-
-pageHome : Model -> List (Html Msg)
-pageHome _ =
-    [ h1 [] [ text "Home" ]
-    , Grid.row []
-        [ Grid.col []
-            [ Card.config [ Card.outlinePrimary ]
-                |> Card.headerH4 [] [ text "Getting started" ]
-                |> Card.block []
-                    [ Block.text [] [ text "Getting started is real easy. Just click the start button." ]
-                    , Block.custom <|
-                        Button.linkButton
-                            [ Button.primary, Button.attrs [ href "#getting-started" ] ]
-                            [ text "Start" ]
-                    ]
-                |> Card.view
-            ]
-        , Grid.col []
-            [ Card.config [ Card.outlineDanger ]
-                |> Card.headerH4 [] [ text "Modules" ]
-                |> Card.block []
-                    [ Block.text [] [ text "Check out the modules overview" ]
-                    , Block.custom <|
-                        Button.linkButton
-                            [ Button.primary, Button.attrs [ href "#modules" ] ]
-                            [ text "Module" ]
-                    ]
-                |> Card.view
-            ]
-        ]
-    ]
-
-
-pageGettingStarted : Model -> List (Html Msg)
-pageGettingStarted _ =
-    [ h2 [] [ text "Getting started" ]
-    , Button.button
-        [ Button.success
-        , Button.large
-        , Button.block
-        , Button.attrs [ onClick ShowModal ]
-        ]
-        [ text "Click me" ]
-    ]
-
-
-pageModules : Model -> List (Html Msg)
-pageModules _ =
-    [ h1 [] [ text "Modules" ]
-    , Listgroup.ul
-        [ Listgroup.li [] [ text "Alert" ]
-        , Listgroup.li [] [ text "Badge" ]
-        , Listgroup.li [] [ text "Card" ]
-        ]
-    ]
-
-
-pageNotFound : List (Html Msg)
-pageNotFound =
-    [ h1 [] [ text "Not found" ]
-    , text "SOrry couldn't find that page"
-    ]
+    Grid.container [] <| pageContent model.page
 
 
 modal : Model -> Html Msg
 modal model =
-    Modal.config CloseModal
+    Modal.config Msg.CloseModal
         |> Modal.small
         |> Modal.h4 [] [ text "Getting started ?" ]
         |> Modal.body []
