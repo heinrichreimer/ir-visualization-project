@@ -2,8 +2,6 @@
 
 Project for the _Information Retrieval and Visualization_ lecture in summer semester 2020 at [Martin Luther University Halle-Wittenberg](https://uni-halle.de).
 
-The web app can be accessed at: https://infovis.reimer.app
-
 _See also the [exercises](https://github.com/heinrichreimer/ir-visualization-exercises)._
 
 ## License 
